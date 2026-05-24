@@ -25,6 +25,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Deshabilita CSRF con la nueva sintaxis
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**").permitAll() // Permitir acceso público
+                        .requestMatchers("/api/usuarios").hasRole("ADMIN") // Ordenado de acceso más a menos restrictivo.
+                        .requestMatchers("/api/carritos").hasRole("CLIENTE")
+                        .requestMatchers("/api/inventario", "/api/ventas", "/api/detalle-ventas").hasAnyRole("ADMIN", "EMPLEADO")
+                        .requestMatchers("/api/productos", "/api/categorias").hasAnyRole("ADMIN", "EMPLEADO", "CLIENTE")
                         .anyRequest().authenticated() // Requiere autenticación para el resto
                 )
                 .formLogin(form -> form
