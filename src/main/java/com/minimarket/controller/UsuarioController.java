@@ -4,6 +4,7 @@ import com.minimarket.entity.Usuario;
 import com.minimarket.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,11 +17,13 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @PreAuthorize("hasAnyRole('GERENTE', 'EMPLEADO')") // Solo GERENTE y EMPLEADO pueden acceder a estos endpoints
     @GetMapping
     public List<Usuario> listarUsuarios() {
         return usuarioService.findAll();
     }
 
+    @PreAuthorize("hasAnyRole('GERENTE', 'EMPLEADO')") // Solo GERENTE y EMPLEADO pueden acceder a estos endpoints
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable Long id) {
         Optional<Usuario> usuario = usuarioService.findById(id);
@@ -28,11 +31,13 @@ public class UsuarioController {
                 .orElseGet(() -> ResponseEntity.notFound().build()); // Si no, devuelve 404
     }
 
+    @PreAuthorize("hasRole('GERENTE')") // Solo GERENTE pueden guardar usuarios
     @PostMapping
     public Usuario guardarUsuario(@RequestBody Usuario usuario) {
         return usuarioService.save(usuario);
     }
 
+    @PreAuthorize("hasRole('GERENTE')") // Solo GERENTE pueden actualizar usuarios
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
         Optional<Usuario> usuarioExistente = usuarioService.findById(id);
@@ -43,6 +48,7 @@ public class UsuarioController {
         return ResponseEntity.notFound().build();
     }
 
+    @PreAuthorize("hasRole('GERENTE')") // Solo GERENTE pueden eliminar usuarios
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id) {
         Optional<Usuario> usuario = usuarioService.findById(id);

@@ -4,6 +4,7 @@ import com.minimarket.entity.Producto;
 import com.minimarket.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,22 +16,26 @@ public class ProductoController {
     @Autowired
     private ProductoService productoService;
 
+    @PreAuthorize("hasAnyRole('GERENTE', 'EMPLEADO', 'CLIENTE')") // Solo GERENTE, EMPLEADO y CLIENTE pueden acceder a estos endpoints
     @GetMapping
     public List<Producto> listarProductos() {
         return productoService.findAll();
     }
 
+    @PreAuthorize("hasAnyRole('GERENTE', 'EMPLEADO', 'CLIENTE')") // Solo GERENTE, EMPLEADO y CLIENTE pueden acceder a estos endpoints
     @GetMapping("/{id}")
     public ResponseEntity<Producto> obtenerProductoPorId(@PathVariable Long id) {
         Producto producto = productoService.findById(id);
         return (producto != null) ? ResponseEntity.ok(producto) : ResponseEntity.notFound().build();
     }
 
+    @PreAuthorize("hasRole('GERENTE')") // Solo GERENTE pueden guardar productos
     @PostMapping
     public Producto guardarProducto(@RequestBody Producto producto) {
         return productoService.save(producto);
     }
 
+    @PreAuthorize("hasAnyRole('GERENTE', 'EMPLEADO')") // Solo GERENTE y EMPLEADO pueden actualizar productos
     @PutMapping("/{id}")
     public ResponseEntity<Producto> actualizarProducto(@PathVariable Long id, @RequestBody Producto producto) {
         Producto productoExistente = productoService.findById(id);
@@ -41,6 +46,7 @@ public class ProductoController {
         return ResponseEntity.notFound().build();
     }
 
+    @PreAuthorize("hasRole('GERENTE')") // Solo GERENTE pueden eliminar productos
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarProducto(@PathVariable Long id) {
         Producto producto = productoService.findById(id);
