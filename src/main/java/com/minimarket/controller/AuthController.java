@@ -15,12 +15,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.minimarket.dto.UsuarioRequestDTO;
+import com.minimarket.dto.UsuarioResponseDTO;
 import com.minimarket.entity.Rol;
 import com.minimarket.entity.Usuario;
 import com.minimarket.repository.RolRepository;
 import com.minimarket.repository.UsuarioRepository;
-import com.minimarket.security.model.LoginRequest;
 import com.minimarket.security.util.JwtUtil;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -42,7 +45,7 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody UsuarioRequestDTO request) {
 
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -58,7 +61,7 @@ public class AuthController {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody UsuarioRequestDTO request) {
         
         if (usuarioRepository.findByUsername(request.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().body("El nombre de usuario ya está en uso");
@@ -77,7 +80,14 @@ public class AuthController {
 
         usuarioRepository.save(usuario);
 
-        return ResponseEntity.ok("Usuario registrado exitosamente");
+        UsuarioResponseDTO response = new UsuarioResponseDTO();
+        response.setId(usuario.getId());
+        response.setUsername(usuario.getUsername());
+        response.setRoles(usuario.getRoles().stream()
+            .map(r -> r.getNombre())
+            .collect(java.util.stream.Collectors.toSet()));
+
+        return ResponseEntity.ok(response);
     }
 
 }
