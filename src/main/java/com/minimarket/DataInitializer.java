@@ -25,10 +25,10 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        Rol admin = rolRepository.findByNombre("ROLE_ADMIN").orElseGet(() -> {
-            Rol nuevoRolAdmin = new Rol();
-            nuevoRolAdmin.setNombre("ROLE_ADMIN");
-            return rolRepository.save(nuevoRolAdmin);
+        Rol gerente = rolRepository.findByNombre("ROLE_GERENTE").orElseGet(() -> {
+            Rol nuevoRolGerente = new Rol();
+            nuevoRolGerente.setNombre("ROLE_GERENTE");
+            return rolRepository.save(nuevoRolGerente);
         });
         
         Rol empleado = rolRepository.findByNombre("ROLE_EMPLEADO").orElseGet(() -> {
@@ -45,16 +45,16 @@ public class DataInitializer implements CommandLineRunner {
 
         Usuario usuarioAdmin = new Usuario();
         usuarioAdmin.setUsername("admin");
-        usuarioAdmin.setPassword("123");
+        usuarioAdmin.setPassword("123456");
         usuarioAdmin.setPassword(passwordEncoder.encode(usuarioAdmin.getPassword()));
-        usuarioAdmin.setRoles(Set.of(admin));
+        usuarioAdmin.setRoles(Set.of(gerente));
         usuarioRepository.findByUsername("admin").orElseGet(() -> {
             return usuarioRepository.save(usuarioAdmin);
         });
 
         Usuario usuarioEmpleado = new Usuario();
         usuarioEmpleado.setUsername("empleado");
-        usuarioEmpleado.setPassword("123");
+        usuarioEmpleado.setPassword("123456");
         usuarioEmpleado.setPassword(passwordEncoder.encode(usuarioEmpleado.getPassword()));
         usuarioEmpleado.setRoles(Set.of(empleado));
         usuarioRepository.findByUsername("empleado").orElseGet(() -> {
@@ -63,7 +63,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Usuario usuarioCliente = new Usuario();
         usuarioCliente.setUsername("cliente");
-        usuarioCliente.setPassword("123");
+        usuarioCliente.setPassword("123456");
         usuarioCliente.setPassword(passwordEncoder.encode(usuarioCliente.getPassword()));
         usuarioCliente.setRoles(Set.of(cliente));
         usuarioRepository.findByUsername("cliente").orElseGet(() -> {
