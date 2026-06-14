@@ -1,13 +1,15 @@
 package com.minimarket;
 
+import java.util.Set;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
 import com.minimarket.entity.Rol;
 import com.minimarket.entity.Usuario;
 import com.minimarket.repository.RolRepository;
 import com.minimarket.repository.UsuarioRepository;
-import java.util.Set;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -25,10 +27,10 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        Rol admin = rolRepository.findByNombre("ROLE_ADMIN").orElseGet(() -> {
-            Rol nuevoRolAdmin = new Rol();
-            nuevoRolAdmin.setNombre("ROLE_ADMIN");
-            return rolRepository.save(nuevoRolAdmin);
+        Rol gerente = rolRepository.findByNombre("ROLE_GERENTE").orElseGet(() -> {
+            Rol nuevoRolGerente = new Rol();
+            nuevoRolGerente.setNombre("ROLE_GERENTE");
+            return rolRepository.save(nuevoRolGerente);
         });
         
         Rol empleado = rolRepository.findByNombre("ROLE_EMPLEADO").orElseGet(() -> {
@@ -47,7 +49,7 @@ public class DataInitializer implements CommandLineRunner {
         usuarioAdmin.setUsername("admin");
         usuarioAdmin.setPassword("123");
         usuarioAdmin.setPassword(passwordEncoder.encode(usuarioAdmin.getPassword()));
-        usuarioAdmin.setRoles(Set.of(admin));
+        usuarioAdmin.setRoles(Set.of(gerente));
         usuarioRepository.findByUsername("admin").orElseGet(() -> {
             return usuarioRepository.save(usuarioAdmin);
         });
