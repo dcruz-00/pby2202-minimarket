@@ -60,4 +60,18 @@ public class UsuarioTest {
         assertTrue(usuario.getRoles().stream().anyMatch(role -> role.getNombre().equals("USER")));
         assertTrue(usuario.getRoles().stream().anyMatch(role -> role.getNombre().equals("ADMIN")));
     }
+
+    @Test
+    public void testUsuarioSinRolesTieneRolesNuloOVacio() {
+        Usuario usuario = new Usuario(); 
+        usuario.setUsername("sinRoles");
+        usuario.setPassword("password");
+
+        Set<Rol> roles = usuario.getRoles();
+
+        assertTrue(
+            roles == null || roles.isEmpty(),
+            "Un usuario sin roles asignados debe tener getRoles() nul o vacio"
+        );
+    }
 }
