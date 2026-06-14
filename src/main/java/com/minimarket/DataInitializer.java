@@ -94,4 +94,61 @@ public class DataInitializer implements CommandLineRunner {
 
         Producto leche = crearProducto("Leche entera (1 L)", 990.0, 110, lacteos);
         crearProducto("Yogurt frutado (150 g)", 450.0, 80, lacteos);
-        crearProducto("Mantequilla (200 g)",
+        crearProducto("Mantequilla (200 g)", 1290.0, 45, lacteos);
+        crearProducto("Helado de vainilla (1 L)", 2490.0, 30, lacteos);
+
+        Producto detergente = crearProducto("Detergente en polvo (1 kg)", 2190.0, 55, limpieza);
+        crearProducto("Cloro líquido (1 L)", 890.0, 70, limpieza);
+        crearProducto("Esponja de cocina (x2)", 490.0, 90, limpieza);
+
+        Producto shampoo = crearProducto("Shampoo (400 ml)", 3290.0, 40, cuidado);
+        crearProducto("Jabón de tocador (x3)", 990.0, 85, cuidado);
+        crearProducto("Pasta de dientes (90 ml)", 990.0, 75, cuidado);
+
+        // INVENTARIO
+        registrarMovimiento(arroz, 100, "Entrada");
+        registrarMovimiento(arroz, 20, "Salida");
+        registrarMovimiento(cocacola, 150, "Entrada");
+        registrarMovimiento(cocacola, 50, "Salida");
+        registrarMovimiento(leche, 120, "Entrada");
+        registrarMovimiento(leche, 10, "Salida");
+        registrarMovimiento(detergente, 80, "Entrada");
+        registrarMovimiento(detergente, 25, "Salida");
+        registrarMovimiento(shampoo, 60, "Entrada");
+    }
+
+    private void crearUsuario(String username, String password, Set<Rol> roles,
+            UsuarioRepository repo, PasswordEncoder encoder) {
+        repo.findByUsername(username).orElseGet(() -> {
+            Usuario u = new Usuario();
+            u.setUsername(username);
+            u.setPassword(encoder.encode(password));
+            u.setRoles(roles);
+            return repo.save(u);
+        });
+    }
+
+    private Categoria crearCategoria(String nombre) {
+        Categoria c = new Categoria();
+        c.setNombre(nombre);
+        return categoriaRepository.save(c);
+    }
+
+    private Producto crearProducto(String nombre, Double precio, Integer stock, Categoria categoria) {
+        Producto p = new Producto();
+        p.setNombre(nombre);
+        p.setPrecio(precio);
+        p.setStock(stock);
+        p.setCategoria(categoria);
+        return productoRepository.save(p);
+    }
+
+    private void registrarMovimiento(Producto producto, Integer cantidad, String tipo) {
+        Inventario inv = new Inventario();
+        inv.setProducto(producto);
+        inv.setCantidad(cantidad);
+        inv.setTipoMovimiento(tipo);
+        inv.setFechaMovimiento(new Date());
+        inventarioRepository.save(inv);
+    }
+}
