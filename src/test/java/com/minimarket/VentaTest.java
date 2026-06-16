@@ -132,4 +132,32 @@ public class VentaTest {
         assertEquals(1L, resultado.get().getId());
         verify(ventaRepository, times(1)).findById(1L);
     }
+
+    @Test
+    public void testDetalleVentaGettersYSetters() {
+        // Arrange
+        Producto producto = new Producto();
+        producto.setId(1L);
+        producto.setNombre("Leche");
+        producto.setPrecio(990.0);
+        producto.setStock(50);
+
+        Venta venta = new Venta();
+        venta.setId(1L);
+        venta.setFecha(new Date());
+
+        DetalleVenta detalle = new DetalleVenta();
+        detalle.setId(1L);
+        detalle.setProducto(producto);
+        detalle.setVenta(venta);
+        detalle.setCantidad(3);
+        detalle.setPrecio(990.0);
+
+        // Assert
+        assertEquals(1L, detalle.getId());
+        assertEquals(producto, detalle.getProducto());
+        assertEquals(venta, detalle.getVenta());
+        assertEquals(3, detalle.getCantidad());
+        assertEquals(990.0, detalle.getPrecio());
+    }
 }
