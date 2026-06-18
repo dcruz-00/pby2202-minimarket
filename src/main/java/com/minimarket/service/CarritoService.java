@@ -10,4 +10,7 @@ public interface CarritoService {
     Carrito save(Carrito carrito);
     void deleteById(Long id);
     List<Carrito> findByUsuarioId(Long usuarioId);
+
+    // Agrega un producto al carrito validando el stock disponible
+    Carrito agregarProducto(Carrito carrito);
 }
