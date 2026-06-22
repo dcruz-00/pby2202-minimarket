@@ -1,9 +1,17 @@
 package com.minimarket;
 
-import com.minimarket.entity.Inventario;
-import com.minimarket.entity.Producto;
-import com.minimarket.repository.InventarioRepository;
-import com.minimarket.service.impl.InventarioServiceImpl;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,8 +19,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.minimarket.entity.Inventario;
+import com.minimarket.entity.Producto;
+import com.minimarket.repository.InventarioRepository;
+import com.minimarket.service.impl.InventarioServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 class InventarioServiceImplTest {
@@ -103,5 +113,32 @@ class InventarioServiceImplTest {
         assertThrows(IllegalArgumentException.class,
                 () -> inventarioService.save(inventarioValido));
         verify(inventarioRepository, never()).save(any());
+    }
+
+    @Test
+    void testFindAll() {
+        List<Inventario> lista = List.of(new Inventario());
+        when(inventarioRepository.findAll()).thenReturn(lista);
+        assertEquals(lista, inventarioService.findAll());
+    }
+
+    @Test
+    void testFindById() {
+        Inventario inventario = new Inventario();
+        when(inventarioRepository.findById(1L)).thenReturn(Optional.of(inventario));
+        assertEquals(inventario, inventarioService.findById(1L));
+    }
+
+    @Test
+    void testDeleteById() {
+        inventarioService.deleteById(1L);
+        verify(inventarioRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testFindByProductoId() {
+        List<Inventario> lista = List.of(new Inventario());
+        when(inventarioRepository.findByProductoId(1L)).thenReturn(lista);
+        assertEquals(lista, inventarioService.findByProductoId(1L));
     }
 }

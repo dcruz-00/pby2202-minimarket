@@ -10,6 +10,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -133,5 +136,46 @@ public class CarritoServiceImplTest {
 
         assertEquals("El producto no puede ser nulo", ex.getMessage());
         verify(carritoRepository, never()).save(any(Carrito.class));
+    }
+
+    @Test
+    public void testAgregarProductoConCantidadCeroLanzaExcepcion() {
+        Carrito carrito = new Carrito();
+        carrito.setProducto(producto);
+        carrito.setCantidad(0);
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> carritoService.agregarProducto(carrito));
+
+        assertEquals("La cantidad debe ser mayor que cero", ex.getMessage());
+        verify(carritoRepository, never()).save(any(Carrito.class));
+    }
+
+    @Test
+    void testFindAll() {
+        List<Carrito> lista = List.of(new Carrito());
+        when(carritoRepository.findAll()).thenReturn(lista);
+        assertEquals(lista, carritoService.findAll());
+    }
+
+    @Test
+    void testFindById() {
+        Carrito carrito = new Carrito();
+        when(carritoRepository.findById(1L)).thenReturn(Optional.of(carrito));
+        assertEquals(carrito, carritoService.findById(1L));
+    }
+
+    @Test
+    void testDeleteById() {
+        carritoService.deleteById(1L);
+        verify(carritoRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testFindByUsuarioId() {
+        List<Carrito> lista = List.of(new Carrito());
+        when(carritoRepository.findByUsuarioId(1L)).thenReturn(lista);
+        assertEquals(lista, carritoService.findByUsuarioId(1L));
     }
 }

@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.minimarket.dto.LoginResponseDTO;
 import com.minimarket.dto.UsuarioRequestDTO;
 import com.minimarket.dto.UsuarioResponseDTO;
 import com.minimarket.entity.Rol;
 import com.minimarket.entity.Usuario;
 import com.minimarket.repository.RolRepository;
 import com.minimarket.repository.UsuarioRepository;
+import com.minimarket.security.model.CustomUserDetails;
 import com.minimarket.security.util.JwtUtil;
 
 import jakarta.validation.Valid;
@@ -48,31 +50,34 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody UsuarioRequestDTO request) {
 
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                request.getUsername(),
-                request.getPassword()
-            )
-        );
-        
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()));
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtil.generateJwtToken(authentication);
 
-        return ResponseEntity.ok(jwt);
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Set<String> roles = userDetails.getAuthorities().stream()
+                .map(a -> a.getAuthority())
+                .collect(java.util.stream.Collectors.toSet());
+
+        return ResponseEntity.ok(new LoginResponseDTO(jwt, userDetails.getUsername(), roles));
     }
-    
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UsuarioRequestDTO request) {
-        
+
         if (usuarioRepository.findByUsername(request.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().body("El nombre de usuario ya está en uso");
         }
-        
+
         Usuario usuario = new Usuario();
         usuario.setUsername(request.getUsername());
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Rol rol = rolRepository.findByNombre("ROLE_CLIENTE")
-            .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
 
         Set<Rol> roles = new HashSet<>();
         roles.add(rol);
@@ -84,11 +89,10 @@ public class AuthController {
         response.setId(usuario.getId());
         response.setUsername(usuario.getUsername());
         response.setRoles(usuario.getRoles().stream()
-            .map(r -> r.getNombre())
-            .collect(java.util.stream.Collectors.toSet()));
+                .map(r -> r.getNombre())
+                .collect(java.util.stream.Collectors.toSet()));
 
         return ResponseEntity.ok(response);
     }
 
 }
-

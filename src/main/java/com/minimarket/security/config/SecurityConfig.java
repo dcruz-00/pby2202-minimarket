@@ -15,10 +15,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import com.minimarket.security.filter.JwtAuthFilter;
 import com.minimarket.security.service.CustomUserDetailsService;
 
-
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true) // Habilita la seguridad a nivel de método
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
@@ -34,20 +33,13 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/**").permitAll() // primero las rutas públicas
-                    .requestMatchers("/public/**").permitAll()
-                    .requestMatchers("/api/usuarios").hasRole("GERENTE")
-                    .requestMatchers("/api/carrito").hasRole("CLIENTE")
-                    .requestMatchers("/api/inventario", "/api/ventas", "/api/detalle-ventas").hasAnyRole("GERENTE", "EMPLEADO")
-                    .requestMatchers("/api/productos", "/api/categorias").hasAnyRole("GERENTE", "EMPLEADO", "CLIENTE")
-                    .anyRequest().authenticated())
-                        /*
-                        Se agregó sessionManagement para configurar la política de creación de sesiones. En este caso, se establece como STATELESS, 
-                        lo que significa que no se crearán sesiones y cada solicitud 
-                        se autenticarán de forma independiente. 
-                        */
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/public/**").permitAll()
+                .anyRequest().authenticated()
+            )
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter,
+                org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -58,6 +50,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Configuración de encriptación de contraseñas
+        return new BCryptPasswordEncoder();
     }
 }
