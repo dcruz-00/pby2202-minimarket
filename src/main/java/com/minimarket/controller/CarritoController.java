@@ -1,13 +1,28 @@
 package com.minimarket.controller;
 
-import com.minimarket.entity.Carrito;
-import com.minimarket.service.CarritoService;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.minimarket.dto.CarritoRequestDTO;
+import com.minimarket.entity.Carrito;
+import com.minimarket.entity.Producto;
+import com.minimarket.entity.Usuario;
+import com.minimarket.repository.ProductoRepository;
+import com.minimarket.repository.UsuarioRepository;
+import com.minimarket.service.CarritoService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/carrito")
@@ -16,37 +31,71 @@ public class CarritoController {
     @Autowired
     private CarritoService carritoService;
 
-    @PreAuthorize ("hasAnyRole('GERENTE', 'EMPLEADO')") // Solo GERENTE, EMPLEADO pueden acceder a estos endpoints
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private ProductoRepository productoRepository;
+
+    @PreAuthorize("hasAnyRole('GERENTE', 'EMPLEADO')")
     @GetMapping
     public List<Carrito> listarCarrito() {
         return carritoService.findAll();
     }
 
-    @PreAuthorize("hasAnyRole('GERENTE','CLIENTE')") // Solo GERENTE y CLIENTE pueden acceder a estos endpoints
+    @PreAuthorize("hasAnyRole('GERENTE','CLIENTE')")
     @GetMapping("/{id}")
     public ResponseEntity<Carrito> obtenerCarritoPorId(@PathVariable Long id) {
         Carrito carrito = carritoService.findById(id);
         return (carrito != null) ? ResponseEntity.ok(carrito) : ResponseEntity.notFound().build();
     }
 
-    @PreAuthorize("hasRole('CLIENTE')") // Solo CLIENTE pueden agregar productos al carrito   
+    @PreAuthorize("hasRole('CLIENTE')")
     @PostMapping
-    public Carrito agregarProductoAlCarrito(@RequestBody Carrito carrito) {
-        return carritoService.save(carrito);
-    }
-
-    @PreAuthorize("hasRole('CLIENTE')") // Solo CLIENTE pueden actualizar productos del carrito
-    @PutMapping("/{id}")
-    public ResponseEntity<Carrito> actualizarCarrito(@PathVariable Long id, @RequestBody Carrito carrito) {
-        Carrito existente = carritoService.findById(id);
-        if (existente != null) {
-            carrito.setId(id);
-            return ResponseEntity.ok(carritoService.save(carrito));
+    public ResponseEntity<?> agregarProductoAlCarrito(@Valid @RequestBody CarritoRequestDTO request) {
+        Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
+                .orElse(null);
+        if (usuario == null) {
+            return ResponseEntity.badRequest().body("Usuario no encontrado");
         }
-        return ResponseEntity.notFound().build();
+
+        Producto producto = productoRepository.findById(request.getProductoId())
+                .orElse(null);
+        if (producto == null) {
+            return ResponseEntity.badRequest().body("Producto no encontrado");
+        }
+
+        Carrito carrito = new Carrito();
+        carrito.setUsuario(usuario);
+        carrito.setProducto(producto);
+        carrito.setCantidad(request.getCantidad());
+
+        return ResponseEntity.ok(carritoService.agregarProducto(carrito));
     }
 
-    @PreAuthorize("hasRole('CLIENTE')") // Solo CLIENTE pueden eliminar productos del carrito
+    @PreAuthorize("hasRole('CLIENTE')")
+    @PutMapping("/{id}")
+    public ResponseEntity<Carrito> actualizarCarrito(@PathVariable Long id,
+            @Valid @RequestBody CarritoRequestDTO request) {
+        Carrito existente = carritoService.findById(id);
+        if (existente == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Usuario usuario = usuarioRepository.findById(request.getUsuarioId()).orElse(null);
+        Producto producto = productoRepository.findById(request.getProductoId()).orElse(null);
+        if (usuario == null || producto == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        existente.setUsuario(usuario);
+        existente.setProducto(producto);
+        existente.setCantidad(request.getCantidad());
+
+        return ResponseEntity.ok(carritoService.save(existente));
+    }
+
+    @PreAuthorize("hasRole('CLIENTE')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarProductoDelCarrito(@PathVariable Long id) {
         Carrito carrito = carritoService.findById(id);
