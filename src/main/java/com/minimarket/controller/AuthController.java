@@ -25,8 +25,16 @@ import com.minimarket.repository.UsuarioRepository;
 import com.minimarket.security.model.CustomUserDetails;
 import com.minimarket.security.util.JwtUtil;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@Tag(name = "Autenticación", description = "Operaciones para el inicio de sesión y registro de usuarios")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -46,8 +54,14 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Operation(summary = "Iniciar sesión", description = "Autentica a un usuario con su nombre de usuario y contraseña, y retorna un token JWT junto con sus roles.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Autenticación exitosa, retorna el token JWT", content = @Content(schema = @Schema(implementation = LoginResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "Credenciales inválidas", content = @Content)
+    })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody UsuarioRequestDTO request) {
+    public ResponseEntity<?> login(
+            @Parameter(description = "Credenciales del usuario: username y password") @Valid @RequestBody UsuarioRequestDTO request) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -65,8 +79,14 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponseDTO(jwt, userDetails.getUsername(), roles));
     }
 
+    @Operation(summary = "Registrar usuario", description = "Registra un nuevo usuario en el sistema, asignándole por defecto el rol CLIENTE.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario registrado correctamente", content = @Content(schema = @Schema(implementation = UsuarioResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "El nombre de usuario ya está en uso", content = @Content)
+    })
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UsuarioRequestDTO request) {
+    public ResponseEntity<?> register(
+            @Parameter(description = "Datos del nuevo usuario: username y password") @Valid @RequestBody UsuarioRequestDTO request) {
 
         if (usuarioRepository.findByUsername(request.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().body("El nombre de usuario ya está en uso");
