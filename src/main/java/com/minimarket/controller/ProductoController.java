@@ -41,7 +41,7 @@ public class ProductoController {
 
     @Operation(summary = "Listar productos", description = "Obtiene la lista completa de productos registrados en el minimarket.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de productos obtenida correctamente", content = @Content(schema = @Schema(implementation = Producto.class)))
+            @ApiResponse(responseCode = "200", description = "Lista de productos obtenida correctamente")
     })
     @PreAuthorize("hasAnyRole('GERENTE', 'EMPLEADO', 'CLIENTE')")
     @GetMapping
@@ -58,7 +58,7 @@ public class ProductoController {
 
     @Operation(summary = "Obtener producto por ID", description = "Busca y retorna un producto especifico segun su identificador.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Producto encontrado", content = @Content(schema = @Schema(implementation = Producto.class))),
+            @ApiResponse(responseCode = "200", description = "Producto encontrado"),
             @ApiResponse(responseCode = "404", description = "Producto no encontrado", content = @Content)
     })
     @PreAuthorize("hasAnyRole('GERENTE', 'EMPLEADO', 'CLIENTE')")
@@ -81,7 +81,7 @@ public class ProductoController {
 
     @Operation(summary = "Crear producto", description = "Registra un nuevo producto en el catalogo. Solo disponible para el rol GERENTE.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Producto creado correctamente", content = @Content(schema = @Schema(implementation = Producto.class)))
+            @ApiResponse(responseCode = "200", description = "Producto creado correctamente")
     })
     @PreAuthorize("hasRole('GERENTE')")
     @PostMapping
@@ -95,7 +95,7 @@ public class ProductoController {
 
     @Operation(summary = "Actualizar producto", description = "Actualiza los datos de un producto existente segun su identificador.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Producto actualizado correctamente", content = @Content(schema = @Schema(implementation = Producto.class))),
+            @ApiResponse(responseCode = "200", description = "Producto actualizado correctamente"),
             @ApiResponse(responseCode = "404", description = "Producto no encontrado", content = @Content)
     })
     @PreAuthorize("hasAnyRole('GERENTE', 'EMPLEADO')")

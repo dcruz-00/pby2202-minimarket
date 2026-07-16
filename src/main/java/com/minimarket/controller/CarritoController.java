@@ -53,7 +53,7 @@ public class CarritoController {
 
     @Operation(summary = "Listar carritos", description = "Obtiene la lista completa de carritos registrados.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de carritos obtenida correctamente", content = @Content(schema = @Schema(implementation = Carrito.class)))
+            @ApiResponse(responseCode = "200", description = "Lista de carritos obtenida correctamente")
     })
     @PreAuthorize("hasAnyRole('GERENTE', 'EMPLEADO')")
     @GetMapping
@@ -70,7 +70,7 @@ public class CarritoController {
 
     @Operation(summary = "Obtener carrito por ID", description = "Busca y retorna un carrito especifico segun su identificador.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Carrito encontrado", content = @Content(schema = @Schema(implementation = Carrito.class))),
+            @ApiResponse(responseCode = "200", description = "Carrito encontrado"),
             @ApiResponse(responseCode = "404", description = "Carrito no encontrado", content = @Content)
     })
     @PreAuthorize("hasAnyRole('GERENTE','CLIENTE')")
@@ -92,7 +92,7 @@ public class CarritoController {
 
     @Operation(summary = "Agregar producto al carrito", description = "Anade un producto al carrito de un usuario, indicando la cantidad deseada. Solo disponible para el rol CLIENTE.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Producto agregado correctamente al carrito", content = @Content(schema = @Schema(implementation = Carrito.class))),
+            @ApiResponse(responseCode = "200", description = "Producto agregado correctamente al carrito"),
             @ApiResponse(responseCode = "400", description = "Usuario o producto no encontrado", content = @Content)
     })
     @PreAuthorize("hasRole('CLIENTE')")
@@ -127,7 +127,7 @@ public class CarritoController {
 
     @Operation(summary = "Actualizar carrito", description = "Actualiza los datos de un carrito existente (usuario, producto y cantidad). Solo disponible para el rol CLIENTE.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Carrito actualizado correctamente", content = @Content(schema = @Schema(implementation = Carrito.class))),
+            @ApiResponse(responseCode = "200", description = "Carrito actualizado correctamente"),
             @ApiResponse(responseCode = "400", description = "Usuario o producto no encontrado", content = @Content),
             @ApiResponse(responseCode = "404", description = "Carrito no encontrado", content = @Content)
     })
