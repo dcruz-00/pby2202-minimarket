@@ -42,6 +42,9 @@ public class CarritoControllerTest {
     @MockBean
     private ProductoRepository productoRepository;
 
+    @MockBean
+    private DataInitializer dataInitializer;
+
     // GET /api/carrito
 
     @Test

@@ -38,6 +38,9 @@ public class InventarioControllerTest {
     @MockBean
     private ProductoRepository productoRepository;
 
+    @MockBean
+    private DataInitializer dataInitializer;    
+
     // GET /api/inventario
 
     @Test
